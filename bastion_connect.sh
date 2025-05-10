@@ -11,6 +11,7 @@ fi
 ARGC=$#
 
 
+
 # Case 2: Only Bastion IP provided (connect to bastion)
 if [ $ARGC -eq 1 ]; then
   BASTION_IP=$1
