@@ -6,6 +6,7 @@ if [ -z "$KEY_PATH" ]; then
   exit 5
 fi
 
+
 # Get the number of arguments
 ARGC=$#
 
