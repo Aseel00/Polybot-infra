@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "nginx/conf.d/default-dev.conf ,deploy_nginx.sh"
+          source: "nginx-config/default-dev.conf,deploy_nginx.sh"
           target: "/home/ubuntu/PolybotInfra"
 
       - name: Deploy to EC2 (Dev)
@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/PolybotInfra
-            git pull origin dev
             mkdir -p /home/ubuntu/conf.d
-            cp nginx-config/default-dev.conf /home/ubuntu/conf.d/default.conf
+            cp default-dev.conf /home/ubuntu/conf.d/default.conf
+            chmod +x deploy_nginx.sh
             ./deploy_nginx.sh
