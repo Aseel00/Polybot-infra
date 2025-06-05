@@ -24,4 +24,4 @@ jobs:
             git pull origin dev
             mkdir -p /home/ubuntu/conf.d
             cp nginx_config/default_dev.conf /home/ubuntu/conf.d/default.conf
-            ./scripts/deploy_nginx.sh
+            ./deploy_nginx.sh
