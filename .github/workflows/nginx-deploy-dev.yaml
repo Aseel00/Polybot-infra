@@ -1,0 +1,27 @@
+name: Deploy Nginx to Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 (Dev)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/PolybotInfra
+            git pull origin dev
+            mkdir -p /home/ubuntu/conf.d
+            cp nginx_config/default_dev.conf /home/ubuntu/conf.d/default.conf
+            ./scripts/deploy_nginx.sh

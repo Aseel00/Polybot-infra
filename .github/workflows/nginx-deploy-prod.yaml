@@ -1,0 +1,27 @@
+name: Deploy Nginx to Prod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 (Prod)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/PolybotInfra
+            git pull origin main
+            mkdir -p /home/ubuntu/conf.d
+            cp nginx_config/default_prod.conf /home/ubuntu/conf.d/default.conf
+            ./scripts/deploy_nginx.sh
