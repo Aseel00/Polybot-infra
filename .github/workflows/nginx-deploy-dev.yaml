@@ -31,6 +31,6 @@ jobs:
           script: |
             cd /home/ubuntu/PolybotInfra
             mkdir -p /home/ubuntu/conf.d
-            cp default-dev.conf /home/ubuntu/conf.d/default.conf
+            cp nginx-config/default-dev.conf /home/ubuntu/conf.d/default.conf
             chmod +x deploy_nginx.sh
             ./deploy_nginx.sh
