@@ -20,8 +20,18 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "nginx-config/default-dev.conf,deploy_nginx.sh"
-          target: "/home/ubuntu/PolybotInfra"
+          source: "nginx-config/default-dev.conf"
+          target: "~/conf.d"
+
+      - name: Copy files to EC2 (Dev)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "deploy_nginx.sh"
+          target: "/home/ubuntu/"
+
 
       - name: Deploy to EC2 (Dev)
         uses: appleboy/ssh-action@master
@@ -30,8 +40,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/PolybotInfra
-            mkdir -p /home/ubuntu/conf.d
-            cp nginx-config/default-dev.conf /home/ubuntu/conf.d/default.conf
+          
             chmod +x deploy_nginx.sh
-            ./deploy_nginx.sh
+            bash /home/ubuntu/deploy_nginx.sh
