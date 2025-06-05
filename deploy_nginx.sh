@@ -6,7 +6,8 @@ docker stop mynginx || true
 docker rm mynginx || true
 
 echo "Starting Nginx container..."
-docker run -d --name mynginx -p 443:443 \
+docker run -d --name mynginx \
+   -p 443:443 \
   -v /home/ubuntu/conf.d:/etc/nginx/conf.d/ \
   -v /home/ubuntu/certs:/etc/ssl \
   nginx
