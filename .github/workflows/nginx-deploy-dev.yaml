@@ -1,4 +1,4 @@
-name: Deploy Nginx to Dev
+name: Deploy Nginx Dev Config
 
 on:
   push:
@@ -6,39 +6,42 @@ on:
       - dev
 
 jobs:
-  deploy-dev:
+  deploy-nginx-dev:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Copy files to EC2 (Dev)
-        uses: appleboy/scp-action@master
+      # ✅ Copy config file (already there)
+      - name: Copy config to home folder on EC2
+        uses: appleboy/scp-action@v0.1.3
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.NGINX_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "nginx-config/default-dev.conf"
           target: "~/conf.d"
+          overwrite: true
 
-      - name: Copy files to EC2 (Dev)
-        uses: appleboy/scp-action@master
+      # ✅ Copy the shell script
+      - name: Copy script to EC2
+        uses: appleboy/scp-action@v0.1.3
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.NGINX_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "deploy_nginx.sh"
           target: "/home/ubuntu/"
+          overwrite: true
 
-
-      - name: Deploy to EC2 (Dev)
-        uses: appleboy/ssh-action@master
+      # ✅ Run the script remotely via SSH
+      - name: Run Nginx Docker Script
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.NGINX_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-          
-            chmod +x deploy_nginx.sh
+            chmod +x /home/ubuntu/deploy_nginx.sh
             bash /home/ubuntu/deploy_nginx.sh
