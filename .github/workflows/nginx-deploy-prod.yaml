@@ -1,0 +1,43 @@
+name: Deploy Nginx Dev Config
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-nginx-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy unified config to EC2
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.NGINX_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "nginx-config/default.conf"
+          target: "~/conf.d"
+          overwrite: true
+
+      - name: Copy deployment script
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.NGINX_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "deploy_nginx.sh"
+          target: "/home/ubuntu/"
+          overwrite: true
+
+      - name: Restart Docker container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NGINX_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            chmod +x /home/ubuntu/deploy_nginx.sh
+            bash /home/ubuntu/deploy_nginx.sh
