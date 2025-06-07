@@ -8,24 +8,21 @@ on:
 jobs:
   deploy-nginx-dev:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # ✅ Copy config file (already there)
-      - name: Copy config to home folder on EC2
+      - name: Copy unified config to EC2
         uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.NGINX_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "nginx-config/default-dev.conf"
+          source: "nginx-config/default.conf"
           target: "~/conf.d"
           overwrite: true
 
-      # ✅ Copy the shell script
-      - name: Copy script to EC2
+      - name: Copy deployment script
         uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.NGINX_HOST }}
@@ -35,8 +32,7 @@ jobs:
           target: "/home/ubuntu/"
           overwrite: true
 
-      # ✅ Run the script remotely via SSH
-      - name: Run Nginx Docker Script
+      - name: Restart Docker container
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.NGINX_HOST }}
