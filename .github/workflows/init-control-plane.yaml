@@ -25,12 +25,6 @@ jobs:
      # - name: Read IP into ENV
        # run: |
        #   echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
-      - name: Debug SSH config
-        run: |
-          echo "Listing ~/.ssh"
-          ls -la ~/.ssh
-          echo "SSH config:"
-          cat ~/.ssh/config
 
       - name: Set up SSH key
         run: |
