@@ -1,0 +1,66 @@
+name: 🔄 Refresh Join Command
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # every 12 hours
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-north-1
+
+jobs:
+  refresh-token:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Control Plane IP
+        uses: actions/download-artifact@v4
+        with:
+          name: control-plane-ip
+
+      - name: Read IP into ENV
+        run: |
+          echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
+
+      - name: Set up SSH config
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/private_key
+          chmod 600 ~/.ssh/private_key
+          cat > ~/.ssh/config << EOF
+          Host ec2
+              HostName $EC2_HOST
+              User $EC2_USERNAME
+              IdentityFile ~/.ssh/private_key
+              StrictHostKeyChecking no
+          EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_USERNAME: ${{ secrets.EC2_USER }}
+
+      - name: SSH and refresh join command (update only)
+        run: |
+          ssh ec2 << 'EOF'
+            set -e
+
+            # 🧰 Install AWS CLI if not installed
+            if ! command -v aws &> /dev/null; then
+              echo "[INFO] AWS CLI not found. Installing..."
+              apt-get update
+              apt-get install -y unzip curl
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
+            fi
+
+            # 🔄 Refresh join command and update secret
+            echo "sudo \$(kubeadm token create --print-join-command)" > /tmp/k8s_join.sh
+
+            aws secretsmanager put-secret-value \
+              --secret-id K8S_JOIN_COMMAND \
+              --secret-string file:///tmp/k8s_join.sh \
+              --region eu-north-1
+          EOF

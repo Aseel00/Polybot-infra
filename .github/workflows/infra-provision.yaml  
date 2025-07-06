@@ -1,0 +1,49 @@
+name: 🚀 Provision Kubernetes Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Provision Infra
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform Init
+        run: |
+          cd tf
+          terraform init
+
+      - name: Select or Create Workspace
+        run: |
+          cd tf
+          terraform workspace select eu-north-1 || terraform workspace new eu-north-1
+
+      - name: Terraform Apply
+        run: |
+          cd tf
+          terraform apply -auto-approve -var-file=region.eu-north-1.tfvars
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Export Control Plane IP
+        run: |
+          cd tf
+          terraform output -raw control_plane_public_ip > control_plane_ip.txt
+
+      - name: Upload Control Plane IP
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-plane-ip
+          path: tf/control_plane_ip.txt
+
+
