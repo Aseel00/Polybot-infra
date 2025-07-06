@@ -6,60 +6,42 @@ on:
     types:
       - completed
 
-env:
-  AWS_REGION: eu-north-1
-
 jobs:
   init-control-plane:
     runs-on: ubuntu-latest
+    name: Init Control Plane
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Download Control Plane IP
+      - name: Download Control Plane IP artifact
         uses: actions/download-artifact@v4
         with:
           name: control-plane-ip
+          path: .
 
       - name: Read IP into ENV
         run: |
           echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
 
-      - name: Set up SSH config
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/private_key
+          echo "$EC2_SSH_KEY" > ~/.ssh/private_key
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
               HostName $EC2_HOST
-              User $EC2_USERNAME
+              User $EC2_USER
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
           EOF
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          EC2_USERNAME: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_USER: ${{ secrets.EC2_USER }}
 
       - name: SSH and initialize Kubernetes
         run: |
           ssh ec2 << 'EOF'
             set -e
-
-            # 🧰 Install AWS CLI if not installed
-            if ! command -v aws &> /dev/null; then
-              echo "[INFO] AWS CLI not found. Installing..."
-              apt-get update
-              apt-get install -y unzip curl
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
-              sudo ./aws/install
-            else
-              echo "[INFO] AWS CLI already installed"
-            fi
-
-            # 🚀 Initialize cluster if not already done
             if [ ! -f /etc/kubernetes/admin.conf ]; then
               sudo kubeadm init --pod-network-cidr=192.168.0.0/16
 
@@ -70,20 +52,18 @@ jobs:
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
 
-            # 🔐 Generate and store join command
-            echo "sudo \$(kubeadm token create --print-join-command)" > /tmp/k8s_join.sh
+            # Refresh join command and update secret
+            JOIN_CMD="sudo \$(kubeadm token create --print-join-command)"
+            echo "\$JOIN_CMD" > /tmp/k8s_join.sh
 
-            if aws secretsmanager describe-secret --secret-id K8S_JOIN_COMMAND --region eu-north-1 >/dev/null 2>&1; then
-              echo "[INFO] Secret exists. Updating..."
-              aws secretsmanager put-secret-value \
-                --secret-id K8S_JOIN_COMMAND \
-                --secret-string file:///tmp/k8s_join.sh \
-                --region eu-north-1
-            else
-              echo "[INFO] Secret does not exist. Creating..."
-              aws secretsmanager create-secret \
-                --name K8S_JOIN_COMMAND \
-                --secret-string file:///tmp/k8s_join.sh \
-                --region eu-north-1
+            if ! command -v aws &>/dev/null; then
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
             fi
+
+            aws secretsmanager put-secret-value \
+              --secret-id K8S_JOIN_COMMAND \
+              --secret-string file:///tmp/k8s_join.sh \
+              --region eu-north-1
           EOF
