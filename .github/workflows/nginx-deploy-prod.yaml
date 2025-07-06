@@ -3,7 +3,7 @@ name: Deploy Nginx Dev Config
 on:
   push:
     branches:
-      - main
+
 
 jobs:
   deploy-nginx-dev:
