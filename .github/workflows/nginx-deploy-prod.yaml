@@ -1,5 +1,9 @@
 name: Deploy Nginx Dev Config
 
+on:
+  push:
+    branches:
+      - dev
 
 jobs:
   deploy-nginx-dev:
