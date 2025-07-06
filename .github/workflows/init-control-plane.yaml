@@ -16,15 +16,15 @@ jobs:
     name: Init Control Plane
 
     steps:
-      - name: Download Control Plane IP artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: control-plane-ip
-          path: .
+     # - name: Download Control Plane IP artifact
+      ##  uses: actions/download-artifact@v4
+      #  with:
+      #    name: control-plane-ip
+      #    path: .
 
-      - name: Read IP into ENV
-        run: |
-          echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
+     # - name: Read IP into ENV
+       # run: |
+       #   echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
 
       - name: Set up SSH key
         run: |
@@ -33,7 +33,7 @@ jobs:
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
-              HostName $EC2_HOST
+              HostName $EC2_CONTROL_HOST
               User $EC2_USER
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
@@ -41,6 +41,7 @@ jobs:
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
           EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_CONTROL_HOST: ${{ secrets.EC2_CONTROL_HOST }}
 
       - name: SSH and initialize Kubernetes
         run: |
