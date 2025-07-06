@@ -12,6 +12,10 @@ jobs:
     name: Provision Infra
     runs-on: ubuntu-latest
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -33,14 +37,13 @@ jobs:
         run: |
           cd tf
           terraform apply -auto-approve -var-file=region.eu-north-1.tfvars
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        
 
       - name: Export Control Plane IP
         run: |
           cd tf
-          terraform output -raw control_plane_public_ip > control_plane_ip.txt
+          terraform output -raw control_plane_elastic_ip > control_plane_ip.txt
+      
 
       - name: Upload Control Plane IP
         uses: actions/upload-artifact@v4
