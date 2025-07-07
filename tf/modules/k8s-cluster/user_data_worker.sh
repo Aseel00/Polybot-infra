@@ -42,10 +42,24 @@ swapoff -a
 # add the command to crontab to make it persistent across reboots
 (crontab -l ; echo "@reboot /sbin/swapoff -a") | crontab -
 
+
+echo "Fetching K8S_JOIN_COMMAND from AWS Secrets Manager..."
+
 JOIN_CMD=$(aws secretsmanager get-secret-value \
   --secret-id K8S_JOIN_COMMAND \
   --region eu-north-1 \
   --query SecretString \
-  --output text)
+  --output text 2>&1)
 
-eval "$JOIN_CMD"
+echo "JOIN_CMD output:"
+echo "$JOIN_CMD"
+
+# Check if it looks like a valid join command
+if [[ "$JOIN_CMD" == *"--token"* && "$JOIN_CMD" == *"--discovery-token-ca-cert-hash"* ]]; then
+  echo "✅ Valid join command detected. Executing..."
+  eval "$JOIN_CMD"
+else
+  echo "❌ Failed to retrieve a valid join command. Aborting."
+  exit 1
+fi
+
