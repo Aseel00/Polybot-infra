@@ -43,6 +43,7 @@ jobs:
         run: |
           cd tf
           terraform output -raw control_plane_elastic_ip > control_plane_ip.txt
+          cat control_plane_ip.txt
       
 
       - name: Upload Control Plane IP
