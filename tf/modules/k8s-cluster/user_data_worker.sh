@@ -44,11 +44,11 @@ swapoff -a
 
 
 # Wait for the K8S_JOIN_COMMAND to become available
-echo "Waiting for K8S_JOIN_COMMAND secret..."
+echo "Waiting for ASEEL_JOIN_COMMAND secret..."
 sleep 100
 for i in {1..30}; do
   JOIN_CMD=$(aws secretsmanager get-secret-value \
-    --secret-id K8S_JOIN_COMMAND \
+    --secret-id ASEEL_JOIN_COMMAND \
     --region eu-north-1 \
     --query SecretString \
     --output text 2>/dev/null) && break
