@@ -43,23 +43,22 @@ swapoff -a
 (crontab -l ; echo "@reboot /sbin/swapoff -a") | crontab -
 
 
-echo "Fetching K8S_JOIN_COMMAND from AWS Secrets Manager..."
+# Wait for the K8S_JOIN_COMMAND to become available
+echo "Waiting for K8S_JOIN_COMMAND secret..."
+for i in {1..30}; do
+  JOIN_CMD=$(aws secretsmanager get-secret-value \
+    --secret-id K8S_JOIN_COMMAND \
+    --region eu-north-1 \
+    --query SecretString \
+    --output text 2>/dev/null) && break
+  echo "Not available yet, retrying in 20s..."
+  sleep 20
+done
 
-JOIN_CMD=$(aws secretsmanager get-secret-value \
-  --secret-id K8S_JOIN_COMMAND \
-  --region eu-north-1 \
-  --query SecretString \
-  --output text 2>&1)
-
-echo "JOIN_CMD output:"
-echo "$JOIN_CMD"
-
-# Check if it looks like a valid join command
-if [[ "$JOIN_CMD" == *"--token"* && "$JOIN_CMD" == *"--discovery-token-ca-cert-hash"* ]]; then
-  echo "✅ Valid join command detected. Executing..."
-  eval "$JOIN_CMD"
-else
-  echo "❌ Failed to retrieve a valid join command. Aborting."
+if [ -z "$JOIN_CMD" ]; then
+  echo "Failed to retrieve join command after multiple attempts"
   exit 1
 fi
 
+echo "Join command retrieved. Executing..."
+eval "$JOIN_CMD"
