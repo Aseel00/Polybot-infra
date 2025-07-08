@@ -32,8 +32,9 @@ jobs:
           cd tf
           terraform init
           terraform workspace select eu-north-1 || terraform workspace new eu-north-1
-          CONTROL_IP=$(terraform output -raw control_plane_elastic_ip)
-          echo "control_ip=$CONTROL_IP" >> "$GITHUB_OUTPUT"
+          CONTROL_IP=$(terraform output -raw control_plane_elastic_ip | tr -d '\r')
+          echo "control_ip=${CONTROL_IP}" >> $GITHUB_OUTPUT
+
 
       - name: Set up SSH key
         run: |
