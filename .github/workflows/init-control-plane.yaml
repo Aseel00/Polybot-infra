@@ -29,11 +29,14 @@ jobs:
       - name: Initialize Terraform and Get IP
         id: tf
         run: |
+          ls -l
           cd tf
           terraform init
           terraform workspace select eu-north-1 || terraform workspace new eu-north-1
           echo "control_ip=$(cd tf && terraform output -raw control_plane_elastic_ip)" >> $GITHUB_OUTPUT
 
+      - name: Debug IP
+        run: echo "Control IP is ${{ steps.tf.outputs.control_ip }}"
 
 
       - name: Set up SSH key
