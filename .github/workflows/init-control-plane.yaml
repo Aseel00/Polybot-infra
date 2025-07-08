@@ -65,16 +65,16 @@ jobs:
             fi
 
             # Check if the secret exists
-            if aws secretsmanager describe-secret --secret-id ASEEL_JOIN_COMMAND --region eu-north-1 2>/dev/null; then
+            if aws secretsmanager describe-secret --secret-id ASEEL_K8S_JOIN_COMMAND --region eu-north-1 2>/dev/null; then
               # Secret exists, update it
               aws secretsmanager put-secret-value \
-                --secret-id ASEEL_JOIN_COMMAND \
+                --secret-id ASEEL_K8S_JOIN_COMMAND \
                 --secret-string file:///tmp/k8s_join.sh \
                 --region eu-north-1
             else
               # Secret doesn't exist, create it
               aws secretsmanager create-secret \
-                --name ASEEL_JOIN_COMMAND \
+                --name ASEEL_K8S_JOIN_COMMAND \
                 --secret-string file:///tmp/k8s_join.sh \
                 --region eu-north-1
             fi
