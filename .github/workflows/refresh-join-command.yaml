@@ -60,7 +60,7 @@ jobs:
             echo "sudo \$(kubeadm token create --print-join-command)" > /tmp/k8s_join.sh
 
             aws secretsmanager put-secret-value \
-              --secret-id ASEEL_JOIN_COMMAND \
+              --secret-id ASEEL_K8S_JOIN_COMMAND \
               --secret-string file:///tmp/k8s_join.sh \
               --region eu-north-1
           EOF
