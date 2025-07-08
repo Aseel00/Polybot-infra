@@ -15,17 +15,26 @@ jobs:
     runs-on: ubuntu-latest
     name: Init Control Plane
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-     # - name: Download Control Plane IP artifact
-      ##  uses: actions/download-artifact@v4
-      #  with:
-      #    name: control-plane-ip
-      #    path: .
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
 
-     # - name: Read IP into ENV
-       # run: |
-       #   echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
+      - name: Initialize Terraform and Get IP
+        id: tf
+        run: |
+          cd tf
+          terraform init
+          terraform workspace select eu-north-1 || terraform workspace new eu-north-1
+          IP=$(terraform output -raw control_plane_elastic_ip)
+          echo "EC2_CONTROL_HOST=$IP" >> $GITHUB_ENV
+          echo "Control Plane IP: $IP"
 
       - name: Set up SSH key
         run: |
@@ -34,7 +43,7 @@ jobs:
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
-              HostName ${{ secrets.EC2_CONTROL_HOST }}
+              HostName $EC2_CONTROL_HOST
               User ${{ secrets.EC2_USER }}
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
@@ -42,7 +51,7 @@ jobs:
 
       - name: SSH and initialize Kubernetes
         run: |
-          ssh ec2 << EOF
+          ssh ec2 << 'EOF'
             set -e
             if [ ! -f /etc/kubernetes/admin.conf ]; then
               sudo kubeadm init --pod-network-cidr=192.168.0.0/16
@@ -54,7 +63,6 @@ jobs:
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
 
-            # Refresh join command and update secret
             JOIN_CMD="sudo \$(kubeadm token create --print-join-command)"
             echo "\$JOIN_CMD" > /tmp/k8s_join.sh
 
@@ -64,19 +72,15 @@ jobs:
               sudo ./aws/install
             fi
 
-            # Check if the secret exists
             if aws secretsmanager describe-secret --secret-id ASEEL_K8S_JOIN_COMMAND --region eu-north-1 2>/dev/null; then
-              # Secret exists, update it
               aws secretsmanager put-secret-value \
                 --secret-id ASEEL_K8S_JOIN_COMMAND \
                 --secret-string file:///tmp/k8s_join.sh \
                 --region eu-north-1
             else
-              # Secret doesn't exist, create it
               aws secretsmanager create-secret \
                 --name ASEEL_K8S_JOIN_COMMAND \
                 --secret-string file:///tmp/k8s_join.sh \
                 --region eu-north-1
             fi
-
           EOF
