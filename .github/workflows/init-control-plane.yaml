@@ -32,9 +32,8 @@ jobs:
           cd tf
           terraform init
           terraform workspace select eu-north-1 || terraform workspace new eu-north-1
-          IP=$(terraform output -raw control_plane_elastic_ip)
-          echo "EC2_CONTROL_HOST=${IP}" >> $GITHUB_OUTPUT
-          echo "Control Plane IP: $IP"
+          CONTROL_IP=$(terraform output -raw control_plane_elastic_ip)
+          echo "control_ip=$CONTROL_IP" >> "$GITHUB_OUTPUT"
 
       - name: Set up SSH key
         run: |
@@ -43,7 +42,7 @@ jobs:
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
-              HostName ${{ steps.extract-ip.outputs.control_ip }}
+              HostName ${{ steps.tf.outputs.control_ip  }}
               User ${{ secrets.EC2_USER }}
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
