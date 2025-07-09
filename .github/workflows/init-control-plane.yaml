@@ -26,49 +26,48 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Initialize Terraform and Get IP
-        id: tf
-        run: |
-          cd tf
-          terraform init -input=false
-          terraform workspace select eu-north-1 || terraform workspace new eu-north-1
-          CONTROL_IP=$(terraform output -raw control_plane_elastic_ip)
+    #  - name: Initialize Terraform and Get IP
+     #   id: tf
+      ##   cd tf
+        #  terraform init -input=false
+         # terraform workspace select eu-north-1 || terraform workspace new eu-north-1
+          #CONTROL_IP=$(terraform output -raw control_plane_elastic_ip)
           
           
           # Install AWS CLI if needed
-          if ! command -v aws &>/dev/null; then
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-          fi
+          #if ! command -v aws &>/dev/null; then
+           # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            #unzip awscliv2.zip
+            #sudo ./aws/install
+          #fi
       
           # Store the IP in Secrets Manager
-          if aws secretsmanager describe-secret --secret-id ASEEL_CONTROL_PLANE_IP --region eu-north-1 2>/dev/null; then
-            aws secretsmanager put-secret-value \
-              --secret-id ASEEL_CONTROL_PLANE_IP \
-              --secret-string "$CONTROL_IP" \
-              --region eu-north-1
-          else
-            aws secretsmanager create-secret \
-              --name ASEEL_CONTROL_PLANE_IP \
-              --secret-string "$CONTROL_IP" \
-              --region eu-north-1
-          fi
+         # if aws secretsmanager describe-secret --secret-id ASEEL_CONTROL_PLANE_IP --region eu-north-1 2>/dev/null; then
+          #  aws secretsmanager put-secret-value \
+           #   --secret-id ASEEL_CONTROL_PLANE_IP \
+            #  --secret-string "$CONTROL_IP" \
+             # --region eu-north-1
+          #else
+           # aws secretsmanager create-secret \
+            #  --name ASEEL_CONTROL_PLANE_IP \
+             # --secret-string "$CONTROL_IP" \
+              #--region eu-north-1
+        #  fi
 
 
       - name: Set up SSH key
         run: |
-          CONTROL_IP=$(aws secretsmanager get-secret-value \
-            --secret-id ASEEL_CONTROL_PLANE_IP \
-            --region eu-north-1 \
-            --query SecretString \
-            --output text)
+       #   CONTROL_IP=$(aws secretsmanager get-secret-value \
+          #  --secret-id ASEEL_CONTROL_PLANE_IP \
+          #  --region eu-north-1 \
+          #  --query SecretString \
+          #  --output text)
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
-              HostName $CONTROL_IP
+              HostName ${{EC2_CONTROL_HOST}}
               User ${{ secrets.EC2_USER }}
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
