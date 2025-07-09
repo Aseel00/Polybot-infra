@@ -64,6 +64,12 @@ jobs:
             --query SecretString \
             --output text)
           echo "CONTROL_IP=$CONTROL_IP" >> $GITHUB_ENV
+          
+          # Print debug (to logs only)
+          echo "Fetched IP: $CONTROL_IP"
+          
+          # Set env variable safely
+          echo "CONTROL_IP=${CONTROL_IP}" | sed 's/\r//' >> $GITHUB_ENV
 
       - name: Set up SSH key
         run: |
