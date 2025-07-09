@@ -32,7 +32,8 @@ jobs:
         #  terraform init -input=false
          # terraform workspace select eu-north-1 || terraform workspace new eu-north-1
           #CONTROL_IP=$(terraform output -raw control_plane_elastic_ip)
-          
+
+
           
           # Install AWS CLI if needed
           # if ! command -v aws &>/dev/null; then
