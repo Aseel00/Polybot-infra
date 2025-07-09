@@ -61,4 +61,4 @@ jobs:
                 --secret-string file:///tmp/k8s_join.sh \
                 --region eu-north-1
             fi
-EOF
+          EOF
