@@ -55,22 +55,14 @@ jobs:
               --region eu-north-1
           fi
 
-      - name: Retrieve IP from Secrets Manager
-        id: getip
+
+      - name: Set up SSH key
         run: |
           CONTROL_IP=$(aws secretsmanager get-secret-value \
             --secret-id ASEEL_CONTROL_PLANE_IP \
             --region eu-north-1 \
             --query SecretString \
             --output text)
-          
-          echo "Fetched IP: $CONTROL_IP"
-      
-          # Safe export to GITHUB_ENV
-          printf "CONTROL_IP=%s\n" "$CONTROL_IP" | sed 's/\r//' >> "$GITHUB_ENV"
-
-      - name: Set up SSH key
-        run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private_key
           chmod 600 ~/.ssh/private_key
