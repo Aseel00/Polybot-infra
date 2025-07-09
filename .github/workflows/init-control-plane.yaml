@@ -20,11 +20,11 @@ jobs:
      # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      #- name: Checkout code
+      #  uses: actions/checkout@v4
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+     # - name: Set up Terraform
+       # uses: hashicorp/setup-terraform@v2
 
     #  - name: Initialize Terraform and Get IP
      #   id: tf
@@ -35,7 +35,7 @@ jobs:
           
           
           # Install AWS CLI if needed
-          #if ! command -v aws &>/dev/null; then
+          # if ! command -v aws &>/dev/null; then
            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             #unzip awscliv2.zip
             #sudo ./aws/install
