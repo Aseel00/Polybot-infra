@@ -68,7 +68,7 @@ jobs:
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
-              HostName ${{EC2_CONTROL_HOST}}
+              HostName ${{ secrets.EC2_CONTROL_HOST}}
               User ${{ secrets.EC2_USER }}
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
