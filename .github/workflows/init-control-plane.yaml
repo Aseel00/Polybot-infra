@@ -37,9 +37,6 @@ jobs:
 
 
 
-      - name: Debug IP
-        run: echo "Control IP is $CONTROL_IP
-
 
       - name: Set up SSH key
         run: |
