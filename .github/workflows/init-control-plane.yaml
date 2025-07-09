@@ -33,10 +33,37 @@ jobs:
           terraform init -input=false
           terraform workspace select eu-north-1 || terraform workspace new eu-north-1
           CONTROL_IP=$(terraform output -raw control_plane_elastic_ip)
-    
+          
+          
+          # Install AWS CLI if needed
+          if ! command -v aws &>/dev/null; then
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+          fi
+      
+          # Store the IP in Secrets Manager
+          if aws secretsmanager describe-secret --secret-id ASEEL_CONTROL_PLANE_IP --region eu-north-1 2>/dev/null; then
+            aws secretsmanager put-secret-value \
+              --secret-id ASEEL_CONTROL_PLANE_IP \
+              --secret-string "$CONTROL_IP" \
+              --region eu-north-1
+          else
+            aws secretsmanager create-secret \
+              --name ASEEL_CONTROL_PLANE_IP \
+              --secret-string "$CONTROL_IP" \
+              --region eu-north-1
+          fi
 
-
-
+      - name: Retrieve IP from Secrets Manager
+        id: getip
+        run: |
+          CONTROL_IP=$(aws secretsmanager get-secret-value \
+            --secret-id ASEEL_CONTROL_PLANE_IP \
+            --region eu-north-1 \
+            --query SecretString \
+            --output text)
+          echo "CONTROL_IP=$CONTROL_IP" >> $GITHUB_ENV
 
       - name: Set up SSH key
         run: |
