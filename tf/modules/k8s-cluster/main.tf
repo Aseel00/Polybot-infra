@@ -177,6 +177,15 @@ resource "aws_launch_template" "worker_lt" {
 
   key_name = var.key_name
 
+   block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size = 20            # ✅ Change this to 20
+      volume_type = "gp3"         # Or "gp2"
+      delete_on_termination = true
+    }
+  }
   iam_instance_profile {
     name = aws_iam_instance_profile.worker_profile.name
   }
