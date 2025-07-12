@@ -44,6 +44,11 @@ spec:
                 secretKeyRef:
                   name: polybot-dev-secrets
                   key: DDB_TABLE_NAME
+            - name: YOLO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: polybot-dev-secrets
+                  key: YOLO_URL
 
             - name: POLYBOT_ENV
               value: dev
