@@ -51,6 +51,7 @@ module "k8s-cluster" {
   subnets_id          = module.polybot_service_vpc.public_subnets
   availability_zone   =  var.az
   vpc_cidr = module.polybot_service_vpc.vpc_cidr_block
+  route53_zone_id  = var.route53_zone_id
 
 }
 
