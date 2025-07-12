@@ -16,41 +16,40 @@ spec:
         app: yolo-dev
     spec:
       containers:
-      - env:
-          - name: BUCKET_NAME
-            valueFrom:
-              secretKeyRef:
-                name: yolo-dev-secrets
-                key: BUCKET_NAME
-          - name: SQS_URL
-            valueFrom:
-              secretKeyRef:
-                name: yolo-dev-secrets
-                key: SQS_URL
-          - name: REGION
-            valueFrom:
-              secretKeyRef:
-                name: yolo-dev-secrets
-                key: REGION
-          - name: DDB_TABLE_NAME
-            valueFrom:
-              secretKeyRef:
-                name: yolo-dev-secrets
-                key: DDB_TABLE_NAME
-          - name: STORAGE_TYPE
-            valueFrom:
-              secretKeyRef:
-                name: yolo-dev-secrets
-                key: STORAGE_TYPE
-          - name: POLYBOT_URL
-            value: polybot-dev-service
-
-        image: aseelarr/yolo-dev:latest
-        name: yolo-container
-        resources:
-          limits:
-            cpu: 100m
-            memory: 50Mi
-          requests:
-            cpu: 100m
-            memory: 50Mi
+        - name: yolo-container
+          image: aseelarr/yolo-dev:latest
+          env:
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: yolo-dev-secrets
+                  key: BUCKET_NAME
+            - name: SQS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: yolo-dev-secrets
+                  key: SQS_URL
+            - name: REGION
+              valueFrom:
+                secretKeyRef:
+                  name: yolo-dev-secrets
+                  key: REGION
+            - name: DDB_TABLE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: yolo-dev-secrets
+                  key: DDB_TABLE_NAME
+            - name: STORAGE_TYPE
+              valueFrom:
+                secretKeyRef:
+                  name: yolo-dev-secrets
+                  key: STORAGE_TYPE
+            - name: POLYBOT_URL
+              value: polybot-dev-service
+          resources:
+            limits:
+              cpu: 100m
+              memory: 50Mi
+            requests:
+              cpu: 100m
+              memory: 50Mi
