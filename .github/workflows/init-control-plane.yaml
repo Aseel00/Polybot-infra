@@ -70,7 +70,7 @@ jobs:
             fi
 
             # Deploy polybot
-            kubectl apply -f tf/k8s/dev/polybotService/
+            kubectl apply -f tf/k8s/dev/PolybotService/
 
             # Create yolo secrets if not already present
             if ! kubectl get secret yolo-dev-secrets -n dev >/dev/null 2>&1; then
