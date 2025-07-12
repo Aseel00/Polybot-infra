@@ -18,6 +18,8 @@ spec:
       containers:
         - image: aseelarr/polybot-dev:65
           name: polybot-container
+          command: ["/bin/sh", "-c", "sleep 3600"]
+
           env:
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
