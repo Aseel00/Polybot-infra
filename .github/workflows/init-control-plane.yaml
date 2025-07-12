@@ -43,14 +43,15 @@ jobs:
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
 
-            # Sparse clone only needed K8s directories
-            mkdir -p ~/k8s-partial && cd ~/k8s-partial
-            git init
-            git remote add origin https://github.com/Aseel00/Polybot-infra.git
-            git config core.sparseCheckout true
-            echo "tf/k8s/dev/polybotService" >> .git/info/sparse-checkout
-            echo "tf/k8s/dev/YoloService/deployment.yaml" >> .git/info/sparse-checkout
-            git pull origin main
+            # Clone your repo if not already present
+            cd $HOME
+            
+            if [ ! -d "Polybot-infra" ]; then
+              git clone https://github.com/Aseel00/Polybot-infra.git
+            fi
+            
+            cd Polybot-infra
+
 
             # Create the namespace only if it doesn't exist
             if ! kubectl get ns dev >/dev/null 2>&1; then
