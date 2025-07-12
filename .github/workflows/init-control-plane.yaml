@@ -71,6 +71,8 @@ jobs:
                 --from-literal=REGION=${{ secrets.REGION }} \
                 --from-literal=SQS_URL=${{ secrets.SQS_URL_DEV }} \
                 --from-literal=DDB_TABLE_NAME=${{ secrets.TABLE_NAME_DEV }} \
+                --from-literal=YOLO_URL=${{ secrets.YOLO_URL_DEV }} \
+          
                 -n dev
             fi
 
