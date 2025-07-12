@@ -16,7 +16,7 @@ spec:
         app: polybot-dev
     spec:
       containers:
-        - image: aseelarr/polybot-dev:latest
+        - image: aseelarr/polybot-dev:65
           name: polybot-container
           env:
             - name: TELEGRAM_BOT_TOKEN

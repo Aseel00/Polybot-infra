@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: yolo-container
-          image: aseelarr/yolo-dev:latest
+          image: aseelarr/yolo-dev:37
           env:
             - name: BUCKET_NAME
               valueFrom:
