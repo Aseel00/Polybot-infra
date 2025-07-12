@@ -76,6 +76,8 @@ jobs:
 
             # Deploy polybot
             kubectl apply -f tf/k8s/dev/PolybotService/
+          
+            kubectl apply -f tf/k8s/dev/ingress-controller/nginx-ingress-controller.yaml
 
             # Create yolo secrets if not already present
             if ! kubectl get secret yolo-dev-secrets -n dev >/dev/null 2>&1; then
