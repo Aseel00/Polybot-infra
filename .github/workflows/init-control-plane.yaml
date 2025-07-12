@@ -63,9 +63,9 @@ jobs:
               kubectl create ns dev
             fi
 
-            kubectl delete secret polybot-dev-secrets -n dev --ignore-not-found
+            kubectl delete secret polybot-aseel-dev-secrets -n dev --ignore-not-found
 
-            kubectl create secret generic polybot-dev-secrets \
+            kubectl create secret generic polybot-aseel-dev-secrets \
               --from-literal=TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN_DEV }} \
               --from-literal=BUCKET_NAME=${{ secrets.BUCKET_NAME_DEV }} \
               --from-literal=REGION=${{ secrets.REGION }} \
