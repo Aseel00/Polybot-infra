@@ -178,7 +178,7 @@ resource "aws_launch_template" "worker_lt" {
   key_name = var.key_name
 
    block_device_mappings {
-    device_name = "/dev/xvda"
+    device_name = "/dev/sda1"
 
     ebs {
       volume_size = 20            # ✅ Change this to 20
