@@ -60,7 +60,7 @@ jobs:
             fi
 
             # Deploy polybot
-            kubectl apply -f k8s/dev/polybotService/
+            kubectl apply -f tf/k8s/dev/polybotService/
 
             # Create yolo secrets if not already present
             if ! kubectl get secret yolo-dev-secrets -n dev >/dev/null 2>&1; then
@@ -74,7 +74,7 @@ jobs:
             fi
 
             # Deploy yolo
-            kubectl apply -f k8s/dev/YoloService/deployment.yaml
+            kubectl apply -f tf/k8s/dev/YoloService/deployment.yaml
 
             # Generate join command
             JOIN_CMD="sudo $(kubeadm token create --print-join-command)"
