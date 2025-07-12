@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: polybot-dev
+  name: polybot-dev
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: polybot-dev
+  template:
+    metadata:
+      labels:
+        app: polybot-dev
+    spec:
+      containers:
+        - image: aseelarr/polybot-dev:latest
+          name: polybot-container
+          env:
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: polybot-dev-secrets
+                  key: TELEGRAM_BOT_TOKEN
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: polybot-dev-secrets
+                  key: BUCKET_NAME
+            - name: SQS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: polybot-dev-secrets
+                  key: SQS_URL
+            - name: REGION
+              valueFrom:
+                secretKeyRef:
+                  name: polybot-dev-secrets
+                  key: REGION
+            - name: DDB_TABLE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: polybot-dev-secrets
+                  key: DDB_TABLE_NAME
+
+            - name: POLYBOT_ENV
+              value: dev
+            - name: BOT_APP_URL
+              value: https://polybot-aseel-dev.fursa.click
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: polybot-dev-service
+  namespace: dev
+spec:
+  selector:
+    app: polybot-dev
+  ports:
+    - port: 8443         # Internal port (what Ingress sees)
+      targetPort: 8443   # Your app's container port

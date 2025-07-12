@@ -33,6 +33,8 @@ jobs:
         run: |
           ssh ec2 <<'EOF'
             set -e
+
+            # Initialize control plane if not already done
             if [ ! -f /etc/kubernetes/admin.conf ]; then
               sudo kubeadm init --pod-network-cidr=192.168.0.0/16
               mkdir -p $HOME/.kube
@@ -41,15 +43,51 @@ jobs:
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
 
+            # Create the namespace only if it doesn't exist
+            if ! kubectl get ns dev >/dev/null 2>&1; then
+              kubectl create ns dev
+            fi
+
+            # Create polybot secrets if not already present
+            if ! kubectl get secret polybot-dev-secrets -n dev >/dev/null 2>&1; then
+              kubectl create secret generic polybot-dev-secrets \
+                --from-literal=TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN_DEV }} \
+                --from-literal=BUCKET_NAME=${{ secrets.BUCKET_NAME_DEV }} \
+                --from-literal=REGION=${{ secrets.REGION }} \
+                --from-literal=SQS_URL=${{ secrets.SQS_URL_DEV }} \
+                --from-literal=DDB_TABLE_NAME=${{ secrets.TABLE_NAME_DEV }} \
+                -n dev
+            fi
+
+            # Deploy polybot
+            kubectl apply -f k8s/dev/polybotService/
+
+            # Create yolo secrets if not already present
+            if ! kubectl get secret yolo-dev-secrets -n dev >/dev/null 2>&1; then
+              kubectl create secret generic yolo-dev-secrets \
+                --from-literal=BUCKET_NAME=${{ secrets.BUCKET_NAME_DEV }} \
+                --from-literal=REGION=${{ secrets.REGION }} \
+                --from-literal=SQS_URL=${{ secrets.SQS_URL_DEV }} \
+                --from-literal=DDB_TABLE_NAME=${{ secrets.TABLE_NAME_DEV }} \
+                --from-literal=STORAGE_TYPE=${{ secrets.STORAGE_TYPE }} \
+                -n dev
+            fi
+
+            # Deploy yolo
+            kubectl apply -f k8s/dev/YoloService/deployment.yaml
+
+            # Generate join command
             JOIN_CMD="sudo $(kubeadm token create --print-join-command)"
             echo "$JOIN_CMD" > /tmp/k8s_join.sh
 
+            # Install AWS CLI if not already present
             if ! command -v aws &>/dev/null; then
               curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
               unzip awscliv2.zip
               sudo ./aws/install
             fi
 
+            # Store join command in Secrets Manager
             if aws secretsmanager describe-secret --secret-id ASEEL_K8S_JOIN_COMMAND --region eu-north-1 2>/dev/null; then
               aws secretsmanager put-secret-value \
                 --secret-id ASEEL_K8S_JOIN_COMMAND \

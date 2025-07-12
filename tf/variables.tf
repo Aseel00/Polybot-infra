@@ -29,3 +29,7 @@ variable "control_plane_instance_type" {
   type        = string
 }
 
+variable "route53_zone_id" {
+  description = "Hosted Zone ID for fursa.click"
+  type        = string
+}

@@ -47,3 +47,8 @@ variable "availability_zone" {
 variable "vpc_cidr" {
   type = string
 }
+
+variable "route53_zone_id" {
+  description = "Hosted Zone ID for fursa.click"
+  type        = string
+}
