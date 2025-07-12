@@ -29,7 +29,7 @@ jobs:
             StrictHostKeyChecking no
           EOF
 
-      - name: SSH and initialize Kubernetes
+      - name: SSH and initialize Kubernetes with sparse clone
         run: |
           ssh ec2 <<'EOF'
             set -e
@@ -42,6 +42,15 @@ jobs:
               sudo chown $(id -u):$(id -g) $HOME/.kube/config
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
+
+            # Sparse clone only needed K8s directories
+            mkdir -p ~/k8s-partial && cd ~/k8s-partial
+            git init
+            git remote add origin https://github.com/Aseel00/Polybot-infra.git
+            git config core.sparseCheckout true
+            echo "tf/k8s/dev/polybotService" >> .git/info/sparse-checkout
+            echo "tf/k8s/dev/YoloService/deployment.yaml" >> .git/info/sparse-checkout
+            git pull origin main
 
             # Create the namespace only if it doesn't exist
             if ! kubectl get ns dev >/dev/null 2>&1; then
