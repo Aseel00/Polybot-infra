@@ -46,11 +46,16 @@ jobs:
             # Clone your repo if not already present
             cd $HOME
             
-            if [ ! -d "Polybot-infra" ]; then
+            cd $HOME
+
+            if [ -d "Polybot-infra" ]; then
+              cd Polybot-infra
+              git reset --hard
+              git pull origin main
+            else
               git clone https://github.com/Aseel00/Polybot-infra.git
+              cd Polybot-infra
             fi
-            
-            cd Polybot-infra
 
 
             # Create the namespace only if it doesn't exist
