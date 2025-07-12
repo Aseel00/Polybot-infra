@@ -42,7 +42,7 @@ spec:
               secretKeyRef:
                 name: yolo-dev-secrets
                 key: STORAGE_TYPE
-          - name:
+          - name: POLYBOT_URL
             value: polybot-dev-service
 
         image: aseelarr/yolo-dev:latest
