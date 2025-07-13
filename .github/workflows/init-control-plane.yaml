@@ -79,17 +79,18 @@ jobs:
             kubectl apply -f tf/k8s/dev/PolybotService/
           
             kubectl apply -f tf/k8s/dev/ingress-controller/nginx-ingress-controller.yaml
-
-            # Create yolo secrets if not already present
-            if ! kubectl get secret yolo-dev-secrets -n dev >/dev/null 2>&1; then
-              kubectl create secret generic yolo-dev-secrets \
-                --from-literal=BUCKET_NAME=${{ secrets.BUCKET_NAME_DEV }} \
-                --from-literal=REGION=${{ secrets.REGION }} \
-                --from-literal=SQS_URL=${{ secrets.SQS_URL_DEV }} \
-                --from-literal=DDB_TABLE_NAME=${{ secrets.TABLE_NAME_DEV }} \
-                --from-literal=STORAGE_TYPE=${{ secrets.STORAGE_TYPE }} \
-                -n dev
-            fi
+          
+            kubectl delete secret yolo-dev-secrets -n dev --ignore-not-found
+            
+            
+            kubectl create secret generic yolo-dev-secrets \
+              --from-literal=BUCKET_NAME=${{ secrets.BUCKET_NAME_DEV }} \
+              --from-literal=REGION=${{ secrets.REGION }} \
+              --from-literal=SQS_URL=${{ secrets.SQS_URL_DEV }} \
+              --from-literal=DDB_TABLE_NAME=${{ secrets.TABLE_NAME_DEV }} \
+              --from-literal=STORAGE_TYPE=${{ secrets.STORAGE_TYPE }} \
+              -n dev
+            
 
             # Deploy yolo
             kubectl apply -f tf/k8s/dev/YoloService/deployment.yaml
