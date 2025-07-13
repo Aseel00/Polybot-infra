@@ -43,6 +43,16 @@ resource "aws_iam_instance_profile" "worker_profile" {
   role = aws_iam_role.control_plane_role.name
 }
 
+resource "aws_iam_role_policy_attachment" "sqs_full_access" {
+  role       = aws_iam_role.control_plane_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "dynamodb_full_access" {
+  role       = aws_iam_role.control_plane_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+}
+
 resource "aws_security_group" "control_plane_sg" {
   name        = "k8s-control-plane-sg"
   description = "Security group for Kubernetes control plane instance"
