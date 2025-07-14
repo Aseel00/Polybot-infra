@@ -95,6 +95,13 @@ jobs:
             # Deploy yolo
             kubectl apply -f tf/k8s/dev/YoloService/deployment.yaml
 
+            kubectl create namespace argocd
+            kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/argo.yaml
+            
+            
+            kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+          
             # Generate join command
             JOIN_CMD="sudo $(kubeadm token create --print-join-command)"
             echo "$JOIN_CMD" > /tmp/k8s_join.sh
