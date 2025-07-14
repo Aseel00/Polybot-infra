@@ -98,7 +98,7 @@ jobs:
             if ! kubectl get ns argocd >/dev/null 2>&1; then
               kubectl create ns argocd
             fi
-            kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/argo.yaml
+            kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/install.yaml
             
             
             kubectl rollout status deployment/argocd-server -n argocd --timeout=120
