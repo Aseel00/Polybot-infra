@@ -95,7 +95,9 @@ jobs:
             # Deploy yolo
             kubectl apply -f tf/k8s/dev/YoloService/deployment.yaml
 
-            kubectl create namespace argocd
+            if ! kubectl get ns argocd >/dev/null 2>&1; then
+              kubectl create ns argocd
+            fi
             kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/argo.yaml
             
             
