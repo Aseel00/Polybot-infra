@@ -63,18 +63,7 @@ jobs:
               kubectl create ns dev
             fi
 
-            kubectl delete secret polybot-aseel-dev-secrets -n dev --ignore-not-found
-
-            kubectl create secret generic polybot-aseel-dev-secrets \
-              --from-literal=TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN_DEV }} \
-              --from-literal=BUCKET_NAME=${{ secrets.BUCKET_NAME_DEV }} \
-              --from-literal=REGION=${{ secrets.REGION }} \
-              --from-literal=SQS_URL=${{ secrets.SQS_URL_DEV }} \
-              --from-literal=DDB_TABLE_NAME=${{ secrets.TABLE_NAME_DEV }} \
-              --from-literal=YOLO_URL=${{ secrets.YOLO_URL_DEV }} \
-              -n dev
-
-
+            
             # Deploy polybot
             kubectl apply -f tf/k8s/dev/PolybotService/
           
