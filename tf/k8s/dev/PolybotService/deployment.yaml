@@ -16,7 +16,7 @@ spec:
         app: polybot-dev
     spec:
       containers:
-        - image: aseelarr/polybot-dev:66
+        - image: aseelarr/polybot-dev:68
           name: polybot-container
          # command: ["/bin/sh", "-c", "sleep 3600"]
 
