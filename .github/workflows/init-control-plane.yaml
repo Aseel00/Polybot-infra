@@ -101,7 +101,8 @@ jobs:
             kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/argo.yaml
             
             
-            kubectl port-forward svc/argocd-server -n argocd 8080:443
+            kubectl rollout status deployment/argocd-server -n argocd --timeout=120
+            kubectl apply -f tf/k8s/dev/ArgoCD/app-of-apps.yaml
 
           
             # Generate join command
