@@ -101,7 +101,7 @@ jobs:
             kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/install.yaml
             
             
-            kubectl rollout status deployment/argocd-server -n argocd --timeout=120s
+          
 
             kubectl apply -f tf/k8s/dev/ArgoCD/app-of-apps.yaml
 
