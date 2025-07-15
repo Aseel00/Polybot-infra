@@ -48,8 +48,8 @@ spec:
               value: http://polybot-dev-service:8443
           resources:
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: 250m
+
             requests:
               cpu: 250m
-              memory: 512Mi
+
