@@ -105,6 +105,7 @@ jobs:
 
             kubectl apply -f tf/k8s/dev/ArgoCD/app-of-apps.yaml
 
+
           
             # Generate join command
             JOIN_CMD="sudo $(kubeadm token create --print-join-command)"
