@@ -55,7 +55,7 @@ spec:
             - name: POLYBOT_ENV
               value: dev
             - name: BOT_APP_URL
-              value: https://polybot-aseel-dev.fursa.click:8443
+              value: https://polybot-aseel-dev.fursa.click
 
 ---
 apiVersion: v1
