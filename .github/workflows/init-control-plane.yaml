@@ -43,10 +43,11 @@ jobs:
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
 
-            # Sparse checkout only tf/k8s/dev/PolybotService from repo
+            # Sparse checkout only tf/k8s/dev/ from repo
+            
             SPARSE_DIR="$HOME/polybot-sparse"
             SPARSE_PATHS=("tf/k8s/dev/PolybotService" "tf/k8s/dev/YoloService" "tf/k8s/dev/ingress-controller" "tf/k8s/dev/ArgoCD")
-
+            
             if [ -d "$SPARSE_DIR/.git" ]; then
               echo "✅ Sparse repo already exists. Pulling..."
               cd "$SPARSE_DIR"
@@ -54,13 +55,14 @@ jobs:
               git pull origin main
             else
               echo "⬇️ Cloning sparse directories..."
-              git init "$SPARSE_DIR"
+              git clone --filter=blob:none --no-checkout https://github.com/Aseel00/Polybot-infra.git "$SPARSE_DIR"
               cd "$SPARSE_DIR"
-              git remote add origin https://github.com/Aseel00/Polybot-infra.git
               git sparse-checkout init --cone
               git sparse-checkout set "${SPARSE_PATHS[@]}"
-              git pull origin main
+              git checkout main
             fi
+                        
+            
             # Create the namespace only if it doesn't exist
             if ! kubectl get ns dev >/dev/null 2>&1; then
               kubectl create ns dev
