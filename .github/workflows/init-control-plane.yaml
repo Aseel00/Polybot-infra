@@ -83,7 +83,7 @@ jobs:
             # Deploy polybot
             kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/PolybotService/"
           
-            kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/ingress-controller/nginx-ingress-controller.yaml"
+            kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/ingress-controller/"
           
             kubectl delete secret yolo-dev-secrets -n dev --ignore-not-found
             
