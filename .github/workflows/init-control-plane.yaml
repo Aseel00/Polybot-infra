@@ -43,21 +43,26 @@ jobs:
               kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.2/manifests/calico.yaml
             fi
 
-            # Clone your repo if not already present
+            # Sparse checkout only tf/k8s/dev/PolybotService from repo
             cd $HOME
+            SPARSE_DIR="$HOME/polybot-sparse"
+            SPARSE_PATH="tf/k8s/dev/PolybotService"
             
-            cd $HOME
-
-            if [ -d "Polybot-infra" ]; then
-              cd Polybot-infra
-              git reset --hard
+            if [ -d "$SPARSE_DIR/.git" ]; then
+              echo "✅ Sparse repo already exists. Pulling..."
+              cd "$SPARSE_DIR"
               git pull origin main
             else
-              git clone https://github.com/Aseel00/Polybot-infra.git
-              cd Polybot-infra
+              echo "⬇️ Cloning sparse directory: $SPARSE_PATH"
+              git init "$SPARSE_DIR"
+              cd "$SPARSE_DIR"
+              git remote add origin https://github.com/Aseel00/Polybot-infra.git
+              git sparse-checkout init --cone
+              git sparse-checkout set "$SPARSE_PATH"
+              git pull origin main
             fi
-
-
+            
+            
             # Create the namespace only if it doesn't exist
             if ! kubectl get ns dev >/dev/null 2>&1; then
               kubectl create ns dev
@@ -76,9 +81,9 @@ jobs:
 
 
             # Deploy polybot
-            kubectl apply -f tf/k8s/dev/PolybotService/
+            kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/PolybotService/"
           
-            kubectl apply -f tf/k8s/dev/ingress-controller/nginx-ingress-controller.yaml
+            kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/ingress-controller/nginx-ingress-controller.yaml"
           
             kubectl delete secret yolo-dev-secrets -n dev --ignore-not-found
             
@@ -93,17 +98,17 @@ jobs:
             
 
             # Deploy yolo
-            kubectl apply -f tf/k8s/dev/YoloService/deployment.yaml
+            kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/YoloService/deployment.yaml"
 
             if ! kubectl get ns argocd >/dev/null 2>&1; then
               kubectl create ns argocd
             fi
-            kubectl apply -n argocd -f tf/k8s/dev/ArgoCD/install.yaml
+            kubectl apply -n argocd -f "$SPARSE_DIR/tf/k8s/dev/ArgoCD/install.yaml"
             
             
           
 
-            kubectl apply -f tf/k8s/dev/ArgoCD/app-of-apps.yaml
+            kubectl apply -f "$SPARSE_DIR/tf/k8s/dev/ArgoCD/app-of-apps.yaml"
 
 
           

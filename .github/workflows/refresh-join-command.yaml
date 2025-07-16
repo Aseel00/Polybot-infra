@@ -16,15 +16,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Download Control Plane IP
-        uses: actions/download-artifact@v4
-        with:
-          name: control-plane-ip
-
-      - name: Read IP into ENV
-        run: |
-          echo "EC2_HOST=$(cat control_plane_ip.txt)" >> $GITHUB_ENV
-
       - name: Set up SSH config
         run: |
           mkdir -p ~/.ssh
@@ -32,14 +23,12 @@ jobs:
           chmod 600 ~/.ssh/private_key
           cat > ~/.ssh/config << EOF
           Host ec2
-              HostName $EC2_HOST
-              User $EC2_USERNAME
+              HostName  ${{ secrets.EC2_CONTROL_HOST }}
+              User ${{ secrets.EC2_USER }}
               IdentityFile ~/.ssh/private_key
               StrictHostKeyChecking no
           EOF
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          EC2_USERNAME: ${{ secrets.EC2_USER }}
+       
 
       - name: SSH and refresh join command (update only)
         run: |
