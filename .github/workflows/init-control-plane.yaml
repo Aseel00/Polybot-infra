@@ -58,7 +58,7 @@ jobs:
               cd "$SPARSE_DIR"
               git remote add origin https://github.com/Aseel00/Polybot-infra.git
               git sparse-checkout init --cone
-              git sparse-checkout set "$SPARSE_PATH"
+              git sparse-checkout set "${SPARSE_PATHS[@]}"
               git pull origin main
             fi
             
