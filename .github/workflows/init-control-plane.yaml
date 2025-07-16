@@ -44,7 +44,7 @@ jobs:
             fi
 
             # Sparse checkout only tf/k8s/dev/PolybotService from repo
-            
+            SPARSE_DIR="$HOME/polybot-sparse"
             SPARSE_PATHS=("tf/k8s/dev/PolybotService" "tf/k8s/dev/YoloService" "tf/k8s/dev/ingress-controller" "tf/k8s/dev/ArgoCD")
 
             if [ -d "$SPARSE_DIR/.git" ]; then
